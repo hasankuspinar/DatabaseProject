@@ -1,0 +1,126 @@
+﻿@{
+    ViewData["Title"] = "Support Chat";
+}
+
+<h2>User Support Chat</h2>
+
+<div>
+    <label>Your Name:</label>
+    <input type="text" id="userName" placeholder="Enter your name" style="display:block;" />
+
+    <label>Subject:</label>
+    <select id="subject" style="display:block;">
+        <option value="Defected Product">Defected Product</option>
+        <option value="Late Order">Late Order</option>
+        <option value="Lost Product">Lost Product</option>
+        <option value="Suggestion">Suggestion</option>
+    </select>
+
+    <label>Message:</label>
+    <input type="text" id="messageInput" placeholder="Type your message..." style="display:block; width:300px;" />
+    <button id="sendMessageBtn">Send</button>
+</div>
+
+<hr />
+
+<div id="chatContainer">
+    <!-- Messages will appear here -->
+</div>
+
+@section Scripts {
+    <!-- 1) Include Firebase scripts (preferably from official CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <script>
+        const queryParams = new URLSearchParams(window.location.search);
+        const username = queryParams.get("username");
+        const userRole = queryParams.get("role");
+
+        // 2) Initialize Firebase (Replace with your actual config)
+        const firebaseConfig = {
+            apiKey: "",
+            authDomain: "",
+            projectId: "",
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: ""
+        };
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        if (!username || userRole !== "user") {
+            alert("Access denied. Redirecting to login...");
+            window.location.href = "/Auth/Login";
+        }
+
+        // Listen to the user's messages
+        function listenToUserMessages() {
+            console.log("Username:", username);
+            console.log("UserRole:", userRole);
+            db.collection("messages")
+                .where("username", "==", username) 
+                .orderBy("timestamp", "asc")
+                .onSnapshot((snapshot) => {
+                    const chatContainer = document.getElementById("chatContainer");
+                    chatContainer.innerHTML = ""; // Clear previous messages
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const msgDiv = document.createElement("div");
+                        msgDiv.innerHTML = `
+                            <strong>${data.userName}</strong> (${data.subject}):
+                            ${data.message}
+                            <br />
+                            <em>${data.timestamp?.toDate()?.toLocaleString() || "N/A"}</em>
+                            <hr/>
+                        `;
+
+                        // If there is a reply, display it
+                        if (data.reply) {
+                            const replyDiv = document.createElement("div");
+                            replyDiv.innerHTML = `
+                                <p><strong>Admin Reply:</strong> ${data.reply}</p>
+                                <em>(${data.replyTimestamp?.toDate()?.toLocaleString() || "N/A"})</em>
+                                <hr/>
+                            `;
+                            msgDiv.appendChild(replyDiv);
+                        }
+
+                        chatContainer.appendChild(msgDiv);
+                    });
+                }, (error) => {
+                    console.error("Error in Firestore query:", error);
+                });
+        }
+
+
+
+        listenToUserMessages();
+
+        // Send a message
+        document.getElementById("sendMessageBtn").addEventListener("click", async () => {
+            const message = document.getElementById("messageInput").value.trim();
+            const subject = document.getElementById("subject").value;
+            if (!message) return;
+
+            try {
+                await db.collection("messages").add({
+                    username: username,          // Matches the logged-in user's username
+                    userName: username,          // Display name 
+                    subject: subject,
+                    message: message,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                document.getElementById("messageInput").value = "";
+            } catch (error) {
+                console.error("Error sending message:", error);
+            }
+        });
+
+    </script>
+}
+

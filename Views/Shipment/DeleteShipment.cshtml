@@ -1,0 +1,25 @@
+﻿@model int?
+
+<h2>Delete Shipment</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<form asp-action="DeleteShipment" method="post">
+    <div class="form-group">
+        <label for="shipmentId">Shipment ID</label>
+        <input type="number" id="shipmentId" name="shipmentId" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-danger">Delete Shipment</button>
+</form>
+

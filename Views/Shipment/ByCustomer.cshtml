@@ -1,0 +1,28 @@
+﻿@model IEnumerable<ShipmentViewModel>
+
+<h2>Shipments for Customer</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Shipment ID</th>
+            <th>Transport Vehicle Type</th>
+            <th>Route Source</th>
+            <th>Route Destination</th>
+            <th>Company Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var shipment in Model)
+        {
+            <tr>
+                <td>@shipment.ShipmentId</td> <!-- Maps to shipment_id -->
+                <td>@shipment.TransportVehicleType</td> <!-- Maps to transport_vehicle_type -->
+                <td>@shipment.RouteSource</td> <!-- Maps to route_source -->
+                <td>@shipment.RouteDestination</td> <!-- Maps to route_destination -->
+                <td>@shipment.CompanyName</td> <!-- Maps to company_name -->
+            </tr>
+        }
+    </tbody>
+</table>
+

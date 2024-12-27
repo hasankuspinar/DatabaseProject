@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Customer>
+
+<h2>Customers</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Company ID</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.Name</td>
+                <td>@customer.Phone</td>
+                <td>@customer.CompanyId</td>
+                <td>
+                    <a asp-controller="Shipment" asp-action="ByCustomer" asp-route-id="@customer.CustomerId">View Shipments</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
